@@ -4,7 +4,7 @@
 // init project
 var express = require('express');
 var app = express();
-
+const moment = require('moment');
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
 var cors = require('cors');
@@ -24,36 +24,36 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 //TimeStamp Function
-const getTimestamp = date => ({
-  unix: date.getTime(),
-  utc: date.toUTCString()
-});
 
-app.get('/api/timestamp',(req,res)=>{
-  let timestamp = getTimestamp(new Date());
-  res.end(JSON.stringify(timestamp));
-});
 
-app.get('/api/timestamp/:dateString',(req,res)=>{
-  const dateString = req.url.split("/api/timestamp/")[1];
-  if (dateString === undefined || dateString.trim() === "") {
-      timestamp = getTimestamp(new Date());
-  } else {
-      const date = !isNaN(dateString) ?
-          new Date(parseInt(dateString)) :
-          new Date(dateString);
 
-      if (!isNaN(date.getTime())) {
-          timestamp = getTimestamp(date);
-      } else {
-          timestamp = {
-              error: "invalid date"
-          };
-      }
+app.get('/api/timestamp/:date',getRequestedDate = (req, res, next) => {
+  const date = req.params.date;
+
+  if (!isNaN(date)) {
+    res.json({
+      unix: new Date(parseInt(date)).getTime(),
+      utc: new Date(parseInt(date)).toUTCString()
+    });
   }
-
-  res.end(JSON.stringify(timestamp));
+  else if (moment.utc(date, 'YYYY-M-D', true).isValid()) {
+    res.json({
+      unix: new Date(date).getTime(),
+      utc: new Date(date).toUTCString()
+    });
+  }
+  else {
+    res.send(`The date, "${date}", is invalid.`);
+  }
 });
+
+app.get('/api/timestamp',getCurrentDate = (req, res, next) => {
+  res.json({
+    unix: new Date().getTime(),
+    utc: new Date().toUTCString()
+  });
+});
+
 
 
 // listen for requests :)
