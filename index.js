@@ -43,7 +43,7 @@ app.get('/api/:date',getRequestedDate = (req, res, next) => {
     });
   }
   else {
-    res.send(`The date, "${date}", is invalid.`);
+    res.send(`Invalid data.`);
   }
 });
 
