@@ -23,7 +23,37 @@ app.get("/", function (req, res) {
 app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
+//TimeStamp Function
+const getTimestamp = date => ({
+  unix: date.getTime(),
+  utc: date.toUTCString()
+});
 
+app.get('/api/timestamp',(req,res)=>{
+  let timestamp = getTimestamp(new Date());
+  res.end(JSON.stringify(timestamp));
+});
+
+app.get('/api/timestamp/:dateString',(req,res)=>{
+  const dateString = req.url.split("/api/timestamp/")[1];
+  if (dateString === undefined || dateString.trim() === "") {
+      timestamp = getTimestamp(new Date());
+  } else {
+      const date = !isNaN(dateString) ?
+          new Date(parseInt(dateString)) :
+          new Date(dateString);
+
+      if (!isNaN(date.getTime())) {
+          timestamp = getTimestamp(date);
+      } else {
+          timestamp = {
+              error: "invalid date"
+          };
+      }
+  }
+
+  res.end(JSON.stringify(timestamp));
+});
 
 
 // listen for requests :)
